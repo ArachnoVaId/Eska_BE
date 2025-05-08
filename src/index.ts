@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import { Request, Response } from "express";
 import mainRoutes from "./routes";
 
 const app = express();
@@ -42,6 +42,6 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use("/api", mainRoutes);
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  app(req as any, res as any);
+export default function handler(req: Request, res: Response) {
+  app(req, res);
 }
