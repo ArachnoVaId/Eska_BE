@@ -12,9 +12,8 @@ app.use(morgan("dev"));
 const isDev = process.env.NODE_ENV === "development";
 
 const allowedOrigins = [
-  "https://meugm.com",
-  "https://www.meugm.com",
-  "https://me19-staging.arachnova.id",
+  "https://teatereska.web.id",
+  "https://eska-amber.vercel.app",
   "http://localhost:3000",
 ];
 

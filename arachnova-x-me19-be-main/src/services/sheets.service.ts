@@ -1,8 +1,8 @@
-import path from "path";
 import { google } from "googleapis";
+import { googleCredentials } from "./credentials.service";
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, "../../credentials/service-account.json"),
+  credentials: googleCredentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"]
 });
 

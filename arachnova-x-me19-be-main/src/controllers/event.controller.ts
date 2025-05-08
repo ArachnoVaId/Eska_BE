@@ -14,7 +14,7 @@ import { createPayment } from "../helpers/midtrans.helper";
 import { getClientIp } from "../helpers/identifier.helper";
 import { Competition, competitionConfigs } from "../configs/competition.config";
 import { OrderItem } from "../types/midtrans.type";
-import { sendGmbccValidationEmail } from "../helpers/mail.helper";
+// import { sendGmbccValidationEmail } from "../helpers/mail.helper";
 import {
   calculateDiscountedPrice,
   validateCouponCode
@@ -36,7 +36,7 @@ export const registerAction = async (
     const competition = competitionName as Competition;
     const config = competitionConfigs[competition];
     if (!config) {
-      res.status(400).json({ message: "Invalid competition selected." });
+      res.status(400).json({ message: "Invalid event selected." });
       return;
     }
 
@@ -82,7 +82,7 @@ export const registerAction = async (
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     // Check if the team name is already registered
-    const teamName = req.body.team_name;
+    const teamName = req.body.name + " - " + req.body.phone;
     const existingCompetitionFolderId = await findFolder(
       competitionName,
       ROOT_FOLDER_ID
@@ -95,7 +95,7 @@ export const registerAction = async (
 
       if (existingTeam) {
         res.status(400).json({
-          message: `Team name ${teamName} already registered for competition ${competition}.`
+          message: `Team name ${teamName} already registered for event ${competition}.`
         });
         return;
       }
@@ -161,7 +161,7 @@ export const registerAction = async (
       const result = await uploadToDrive(
         uploadedFiles,
         competition,
-        req.body.team_name
+        teamName
       );
       fileLinks = result.fileLinks;
       teamFolderId = result.teamFolderId;
@@ -247,7 +247,7 @@ export const getFormSchemaSingle = (req: Request, res: Response): void => {
 
   const config = competitionConfigs[competitionName as Competition];
   if (!config) {
-    res.status(404).json({ message: "Competition not found" });
+    res.status(404).json({ message: "event not found" });
     return;
   }
 
@@ -280,16 +280,16 @@ export const validateRegistration = async (
     const competition = competitionName as Competition;
     const config = competitionConfigs[competition];
     if (!config) {
-      res.status(400).json({ message: "Invalid competition selected." });
+      res.status(400).json({ message: "Invalid event selected." });
       return;
     }
 
     // Send Validation Email
-    await sendGmbccValidationEmail({
-      email: email,
-      competition: competitionName,
-      team: teamName
-    });
+    // await sendGmbccValidationEmail({
+    //   email: email,
+    //   competition: competitionName,
+    //   team: teamName
+    // });
 
     res.status(200).json({
       message:

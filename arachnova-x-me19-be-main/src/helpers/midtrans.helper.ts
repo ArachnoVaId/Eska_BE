@@ -2,7 +2,7 @@ import { Competition } from "../configs/competition.config";
 import { deleteFolderIfExists } from "../services/drive.service";
 import { FormDataFromConfig } from "../types/event.type";
 import { OrderItem } from "../types/midtrans.type";
-import { sendGmbccOnSuccessEmail } from "./mail.helper";
+// import { sendGmbccOnSuccessEmail } from "./mail.helper";
 import { initSQLiteDB } from "./sqlite.helper";
 import { taxCounter } from "./tax.helper";
 const midtransClient = require("midtrans-client");
@@ -175,18 +175,18 @@ export const updatePaymentStatus = async (
         const competition = registration.competition;
 
         // Get email registrant
-        const registrantEmail = registration.email;
+        // const registrantEmail = registration.email;
 
-        if (
-          competition === "GMBCC Individual National" ||
-          competition === "GMBCC Team National"
-        ) {
-          await sendGmbccOnSuccessEmail(
-            registrantEmail,
-            "https://chat.whatsapp.com/HjXwKXa4v4sKtWdG8tC9kS",
-            competition
-          );
-        }
+        // if (
+        //   competition === "GMBCC Individual National" ||
+        //   competition === "GMBCC Team National"
+        // ) {
+        //   // await sendGmbccOnSuccessEmail(
+        //   //   registrantEmail,
+        //   //   "https://chat.whatsapp.com/HjXwKXa4v4sKtWdG8tC9kS",
+        //   //   competition
+        //   // );
+        // }
       }
 
       // Delete record in sqlite

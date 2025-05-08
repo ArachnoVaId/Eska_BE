@@ -32,26 +32,10 @@ function getCurrentPhase(): "earlyBird" | "normal" | "extended" {
   return "extended";
 }
 
-const getGMBCCPriceIndividual = () => {
-  const phase = getCurrentPhase();
-  return gmbccPriceData.individual[phase];
-};
-
-const getGMBCCPriceTeam = () => {
-  const phase = getCurrentPhase();
-  return gmbccPriceData.team[phase];
-};
-
 export const getCompetitionPrices = (competition: Competition): number => {
   switch (competition) {
-    case "Lean Canvas":
-      return 0;
     case "Presale":
-      return 500;
-    case "GMBCC Individual National":
-      return getGMBCCPriceIndividual();
-    case "GMBCC Team National":
-      return getGMBCCPriceTeam();
+      return 0;
     default:
       return 0;
   }
@@ -61,38 +45,11 @@ export const getDefaultCompetitionOrderItems = (
   competition: Competition
 ): OrderItem[] => {
   switch (competition) {
-    case "Lean Canvas":
-      return [
-        {
-          id: "lean_canvas",
-          name: "Lean Canvas",
-          quantity: 1,
-          price: getCompetitionPrices(competition)
-        }
-      ];
     case "Presale":
       return [
         {
-          id: "test_event",
-          name: "Test Event",
-          quantity: 1,
-          price: getCompetitionPrices(competition)
-        }
-      ];
-    case "GMBCC Individual National":
-      return [
-        {
-          id: "gmbcc_individual",
-          name: "GMBCC Individual",
-          quantity: 1,
-          price: getCompetitionPrices(competition)
-        }
-      ];
-    case "GMBCC Team National":
-      return [
-        {
-          id: "gmbcc_team",
-          name: "GMBCC Team",
+          id: "Presale",
+          name: "Presale",
           quantity: 1,
           price: getCompetitionPrices(competition)
         }
