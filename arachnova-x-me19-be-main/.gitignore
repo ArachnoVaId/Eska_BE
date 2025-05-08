@@ -1,0 +1,6 @@
+.env
+credentials/*
+node_modules
+uploads
+data.sqlite
+dist
