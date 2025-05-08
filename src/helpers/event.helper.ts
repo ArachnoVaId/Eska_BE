@@ -1,5 +1,4 @@
 import { Competition } from "../configs/competition.config";
-import { OrderItem } from "../types/midtrans.type";
 
 const gmbccPriceData = {
   individual: {
@@ -38,58 +37,5 @@ export const getCompetitionPrices = (competition: Competition): number => {
       return 0;
     default:
       return 0;
-  }
-};
-
-export const getDefaultCompetitionOrderItems = (
-  competition: Competition
-): OrderItem[] => {
-  switch (competition) {
-    case "Presale":
-      return [
-        {
-          id: "Presale",
-          name: "Presale",
-          quantity: 1,
-          price: getCompetitionPrices(competition)
-        }
-      ];
-    default:
-      return [
-        {
-          id: "default_item",
-          name: "Default Item",
-          quantity: 1,
-          price: 0
-        }
-      ];
-  }
-};
-
-export const getProductInformation = (orderItem: OrderItem): OrderItem => {
-  const itemId = orderItem.id;
-  const buyingQuantity = orderItem.quantity;
-
-  // DB Dummy
-  const productInfo: OrderItem[] = [
-    {
-      id: "ABC",
-      name: "ABC",
-      quantity: buyingQuantity,
-      price: 10000
-    },
-    {
-      id: "XYZ",
-      name: "XYZ",
-      quantity: buyingQuantity,
-      price: 20000
-    }
-  ];
-
-  const product = productInfo.find((item) => item.id === itemId);
-  if (product) {
-    return product;
-  } else {
-    throw new Error(`Product with ID ${itemId} not found.`);
   }
 };

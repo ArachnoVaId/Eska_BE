@@ -1,5 +1,4 @@
 import { Competition, competitionConfigs } from "../configs/competition.config";
-import { OrderItem } from "./midtrans.type";
 
 export type Origin = "national" | "international";
 
@@ -9,7 +8,6 @@ type SharedFields = {
   email: string;
   phone: string;
   orderId: string;
-  order_items: OrderItem[];
 };
 
 // Extract field names by `type` from `fields[]`

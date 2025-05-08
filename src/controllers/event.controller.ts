@@ -6,19 +6,7 @@ import {
   uploadToDrive
 } from "../services/drive.service";
 import { appendToSheet } from "../services/sheets.service";
-import {
-  getDefaultCompetitionOrderItems,
-  getProductInformation
-} from "../helpers/event.helper";
-import { createPayment } from "../helpers/midtrans.helper";
-import { getClientIp } from "../helpers/identifier.helper";
 import { Competition, competitionConfigs } from "../configs/competition.config";
-import { OrderItem } from "../types/midtrans.type";
-// import { sendGmbccValidationEmail } from "../helpers/mail.helper";
-import {
-  calculateDiscountedPrice,
-  validateCouponCode
-} from "../helpers/coupon.helper";
 
 export const registerAction = async (
   req: Request,
@@ -63,21 +51,6 @@ export const registerAction = async (
       return;
     }
 
-    // ✅ Validate coupon
-    let coupon = null;
-    const { novagate_coupon_code_from_form } = req.body;
-    if (novagate_coupon_code_from_form) {
-      // Check if the coupon code is valid
-      coupon = validateCouponCode(novagate_coupon_code_from_form);
-
-      if (!coupon) {
-        res.status(400).json({
-          message: `Invalid coupon code: ${novagate_coupon_code_from_form}`
-        });
-        return;
-      }
-    }
-
     // ✅ Validate required file fields
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -108,52 +81,6 @@ export const registerAction = async (
       uploadedFiles[fileField.name] = file;
     }
 
-    // ✅ Validate Order Items
-    let orderItems = req.body.order_items;
-    let expense = 0;
-    if (orderItems) {
-      // Check Array
-      if (!Array.isArray(orderItems)) {
-        res.status(400).json({ message: "Invalid order_items format." });
-        return;
-      }
-
-      // Check Correct Body
-      for (const item of orderItems) {
-        const asOrder = item as OrderItem;
-        if (!asOrder.id || !asOrder.quantity) {
-          res.status(400).json({ message: "Invalid order_items data." });
-          return;
-        }
-      }
-
-      // Inject Properties, name and price
-      orderItems = orderItems.map((item) => {
-        const asOrder = item as OrderItem;
-        const product = getProductInformation(asOrder);
-        if (!product) {
-          res.status(400).json({ message: "Invalid order_items data." });
-          return;
-        }
-        expense += product.price * asOrder.quantity;
-        return {
-          ...asOrder,
-          name: product.name,
-          price: product.price
-        };
-      });
-    } else {
-      // Inject default order item
-      const order_items = getDefaultCompetitionOrderItems(competition);
-      req.body.order_items = order_items;
-      for (const item of order_items) {
-        expense += item.price * item.quantity;
-      }
-    }
-
-    // Check
-    const ip = getClientIp(req);
-
     // ✅ Upload files to Google Drive
     let fileLinks = null;
 
@@ -169,43 +96,6 @@ export const registerAction = async (
       throw new Error("Failed to upload files. Error: " + error);
     }
 
-    // Calculate discount if existing coupon code
-    if (coupon) {
-      req.body.order_items = req.body.order_items.map((item: OrderItem) => {
-        return {
-          ...item,
-          price: calculateDiscountedPrice(item.price, coupon)
-        };
-      });
-    }
-
-    // ✅ Create payment if required
-    let grossAmount = 0;
-    let orderId: string | null = null;
-    let snapToken: string | null = null;
-
-    if (expense > 0) {
-      try {
-        const {
-          totalAmount: mtGross,
-          orderId: mtOrderId,
-          snapToken: mtSnap
-        } = await createPayment(
-          competition,
-          {
-            ...req.body
-          },
-          ip,
-          teamFolderId
-        );
-        grossAmount = mtGross;
-        orderId = mtOrderId;
-        snapToken = mtSnap;
-      } catch (error) {
-        throw new Error("Failed to create payment. Error: " + error);
-      }
-    }
-
     // ✅ Combine body + uploaded file links for sheet
     const allData = {
       ...req.body,
@@ -217,13 +107,11 @@ export const registerAction = async (
     const sheetRow = [
       new Date(new Date().getTime() + 7 * 60 * 60 * 1000).toISOString(), // GMT+07
       ...sheetOrder.map((key) => allData[key] ?? ""),
-      grossAmount,
-      orderId
     ];
 
     await appendToSheet(sheetRow, competition);
 
-    res.status(200).json({ message: "Submitted!", snapToken });
+    res.status(200).json({ message: "Submitted!" });
   } catch (err) {
     if (teamFolderId) await deleteFolderIfExists(teamFolderId);
     console.error(err);

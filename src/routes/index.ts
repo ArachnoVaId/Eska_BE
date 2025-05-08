@@ -1,6 +1,5 @@
 import { Router } from "express";
 import eventRoutes from "./event.route";
-import midtransRoutes from "./midtrans.route";
 const mainRoutes = Router();
 
 // GET /api/health
@@ -11,8 +10,5 @@ mainRoutes
 
   // Payment
   .use("/event", eventRoutes)
-
-  // Midtrans
-  .use("/midtrans", midtransRoutes);
 
 export default mainRoutes;
